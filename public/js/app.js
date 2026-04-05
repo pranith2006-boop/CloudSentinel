@@ -1,7 +1,7 @@
 // =============================
 // UI UTILITIES
 // =============================
-window.showToast = function(message, type = 'info') {
+window.showToast = function (message, type = 'info') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
   const toast = document.createElement('div');
@@ -32,15 +32,29 @@ function initScrollReveal() {
 // =============================
 // GLOBAL STATE & DATA
 // =============================
+const API_BASE = "https://cloudsentinel-e7m1.onrender.com"; // Updated to use relative paths for unified deployment
 let perfChart = null;
 let coveragePieChart = null;
+
+// =============================
+// SECURITY GUARD
+// =============================
+function checkAuth() {
+  const isAuthPage = window.location.pathname.includes('login.html');
+  const isHomePage = window.location.pathname === '/' || window.location.pathname.endsWith('index.html');
+  const token = localStorage.getItem('token');
+
+  if (!token && !isAuthPage && !isHomePage) {
+    window.location.href = '/login.html';
+  }
+}
 
 // =============================
 // CORE ACTIONS
 // =============================
 async function triggerTest() {
   try {
-    const res = await fetch("/api/tests/trigger", { method: "POST" });
+    const res = await fetch(`${API_BASE}/api/tests/trigger`, { method: "POST" });
     const result = await res.json();
     if (result.success) {
       showToast(`Test ${result.data.runId} initiated successfully.`, "success");
@@ -53,7 +67,7 @@ async function triggerTest() {
 
 async function fetchMetrics() {
   try {
-    const res = await fetch("/api/metrics");
+    const res = await fetch(`${API_BASE}/api/metrics`);
     const result = await res.json();
     if (result.success && result.data) {
       const d = result.data;
@@ -62,26 +76,26 @@ async function fetchMetrics() {
       updateDOM("val-storage", Math.floor(d.totalRequests * 0.3)); // Simulated breakdown
       updateDOM("val-passrate", d.testPassRate + "%");
       updateCoveragePieChart(d.testPassRate);
-      
+
       // Reports page metrics
       updateDOM("rep-runs", d.totalRequests);
       updateDOM("rep-cov", "88%"); // Mock static coverage
-      updateDOM("rep-passed", Math.floor(d.totalRequests * (d.testPassRate/100)));
-      updateDOM("rep-failed", Math.floor(d.totalRequests * (1 - d.testPassRate/100)));
+      updateDOM("rep-passed", Math.floor(d.totalRequests * (d.testPassRate / 100)));
+      updateDOM("rep-failed", Math.floor(d.totalRequests * (1 - d.testPassRate / 100)));
     }
   } catch (err) { console.error("Metrics fetch failed", err); }
 }
 
 async function fetchRecentTests() {
   try {
-    const res = await fetch("/api/tests/recent");
+    const res = await fetch(`${API_BASE}/api/tests/recent`);
     const result = await res.json();
     if (result.success && result.data) {
       updateRecentTestsTable(result.data);
       updatePerformanceChart(result.data);
-      
+
       if (document.getElementById('val-avglatency')) {
-        const avg = result.data.length > 0 ? 
+        const avg = result.data.length > 0 ?
           Math.floor(result.data.reduce((sum, t) => sum + parseInt(t.duration), 0) / result.data.length) : 0;
         updateDOM("val-avglatency", avg + "ms");
       }
@@ -198,6 +212,7 @@ function updateCoveragePieChart(passRate) {
 // INITIALIZATION
 // =============================
 document.addEventListener('DOMContentLoaded', () => {
+  checkAuth();
   initScrollReveal();
 
   // --- AUTH TABS & FORMS ---
@@ -231,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
 
       try {
-        const res = await fetch("/api/auth/login", {
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password })
@@ -260,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Account...';
 
       try {
-        const res = await fetch("/api/auth/register", {
+        const res = await fetch(`${API_BASE}/api/auth/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, email, password })

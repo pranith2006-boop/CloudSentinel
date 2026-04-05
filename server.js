@@ -11,7 +11,11 @@ const User = require('./models/User');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:4000', 'https://cloudsentinal.netlify.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 
