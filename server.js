@@ -12,29 +12,22 @@ const User = require('./models/User');
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:4000', 'https://cloudsentinal.netlify.app'],
+  origin: ['http://localhost:4000', 'https://cloudsentinal.netlify.app', 'https://cloudsentinel.vercel.app', /\.vercel\.app$/],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
 app.use(express.json());
 
-
-// Static Files
-
-// Static Files
-
+// Main entry point for static files (handled by vercel.json in production)
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-
 
 /* =========================
    AUTHENTICATION
 ========================= */
-
 app.post('/api/auth/register', async (req, res) => {
   const { username, email, password } = req.body;
   try {
@@ -67,150 +60,82 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-
-
-
-
-
 /* =========================
    METRICS
 ========================= */
-
 app.get('/api/metrics', async (req, res) => {
-
-try {
-
-let metric = await Metric.findOne({ id: "global" });
-
-if (!metric) {
-metric = await Metric.create({ id: "global" });
-}
-
-res.json({
-success: true,
-data: metric
+  try {
+    let metric = await Metric.findOne({ id: "global" });
+    if (!metric) {
+      metric = await Metric.create({ id: "global" });
+    }
+    res.json({ success: true, data: metric });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
-
-} catch (e) {
-
-res.status(500).json({
-error: e.message
-});
-
-}
-
-});
-
-
 
 /* =========================
    TRIGGER TEST
 ========================= */
-
 app.post('/api/tests/trigger', async (req, res) => {
+  try {
+    const status = Math.random() > 0.3 ? "PASSED" : "FAILED";
+    const test = await TestExecution.create({
+      runId: "RUN-" + Math.floor(Math.random() * 9999),
+      runner: "cloud-runner",
+      environmentOs: "Ubuntu",
+      status,
+      duration: Math.floor(Math.random() * 2000) + "ms",
+      coverage: Math.floor(Math.random() * 100) + "%"
+    });
 
-try {
+    let metric = await Metric.findOne({ id: "global" });
+    if (!metric) {
+      metric = await Metric.create({ id: "global" });
+    }
+    metric.totalRequests += 1;
+    if (status === "PASSED") {
+      metric.testPassRate += 5;
+    }
+    await metric.save();
 
-const status = Math.random() > 0.3 ? "PASSED" : "FAILED";
-
-const test = await TestExecution.create({
-
-runId: "RUN-" + Math.floor(Math.random() * 9999),
-
-runner: "cloud-runner",
-
-environmentOs: "Ubuntu",
-
-status,
-
-duration: Math.floor(Math.random() * 2000) + "ms",
-
-coverage: Math.floor(Math.random() * 100) + "%"
-
+    res.json({ success: true, data: test });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
-
-let metric = await Metric.findOne({ id: "global" });
-
-if (!metric) {
-
-metric = await Metric.create({ id: "global" });
-
-}
-
-metric.totalRequests += 1;
-
-if (status === "PASSED") {
-metric.testPassRate += 5;
-}
-
-await metric.save();
-
-res.json({
-success: true,
-data: test
-});
-
-} catch (e) {
-
-res.status(500).json({
-error: e.message
-});
-
-}
-
-});
-
-
 
 /* =========================
    RECENT TESTS
 ========================= */
-
 app.get('/api/tests/recent', async (req, res) => {
-
-try {
-
-const tests = await TestExecution
-.find()
-.sort({ completedAt: -1 })
-.limit(10);
-
-res.json({
-success: true,
-data: tests
+  try {
+    const tests = await TestExecution
+      .find()
+      .sort({ completedAt: -1 })
+      .limit(10);
+    res.json({ success: true, data: tests });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-} catch (e) {
-
-res.status(500).json({
-error: e.message
-});
-
+/* =========================
+   MONGODB & SERVER
+========================= */
+if (process.env.MONGODB_URI) {
+  mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => console.log("MongoDB Connected"))
+    .catch(err => console.log("MongoDB Connection Error:", err));
 }
 
-});
-
-
-
-/* =========================
-   MONGODB
-========================= */
-
-mongoose
-.connect(process.env.MONGODB_URI)
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.log(err));
-
-
-
-/* =========================
-   SERVER
-========================= */
-
 const PORT = process.env.PORT || 4000;
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
+  });
+}
 
-app.listen(PORT, () => {
-
-console.log("Server running on port " + PORT);
-
-});
+module.exports = app;
