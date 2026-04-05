@@ -1,383 +1,371 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // --- LOGIN FLOW ---
-  const loginForm = document.getElementById('loginForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+// =============================
+// UI UTILITIES
+// =============================
+window.showToast = function(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  let icon = 'info-circle';
+  if (type === 'success') icon = 'circle-check';
+  if (type === 'error') icon = 'circle-xmark';
+  toast.innerHTML = `<i class="fa-solid fa-${icon} toast-icon"></i> <span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('toast-exit');
+    toast.addEventListener('animationend', () => toast.remove());
+  }, 4000);
+}
 
-      try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (data.success) {
-          window.location.href = '/dashboard.html';
-        } else {
-          alert('Login failed');
-        }
-      } catch (err) {
-        console.error(err);
+function initScrollReveal() {
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
       }
     });
-  }
-
-  // --- PORTAL FLOW ---
-  if (window.location.pathname.includes('portal')) {
-    const vmForm = document.getElementById('vmProvisionForm');
-    const storageForm = document.getElementById('storageProvisionForm');
-    const portalLog = document.getElementById('portalLog');
-
-    const addPortalLog = (msg, typeClass='log-sys') => {
-      const div = document.createElement('div');
-      div.className = `log-line ${typeClass}`;
-      div.textContent = msg;
-      portalLog.appendChild(div);
-      portalLog.scrollTop = portalLog.scrollHeight;
-    };
-
-    if (vmForm) {
-      vmForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const type = document.getElementById('vmInstanceType').value;
-        const os = document.getElementById('vmOs').value;
-        const region = document.getElementById('vmRegion').value;
-        
-        const btn = vmForm.querySelector('button');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Provisioning...';
-
-        addPortalLog(`[${new Date().toLocaleTimeString()}] [REQ] VM Provisioning: ${type} (${os}) in ${region}`, 'log-info');
-        
-        setTimeout(() => addPortalLog("> Requesting compute nodes...", "log-sys"), 500);
-        setTimeout(() => addPortalLog("> Preparing OS image from registry...", "log-sys"), 1200);
-        
-        setTimeout(async () => {
-          const res = await triggerTest(); // simulate backend operation affecting metrics
-          if (res && res.success) {
-             addPortalLog(`[SUCCESS] Virtual machine deployed successfully.`, 'log-success');
-          } else {
-             addPortalLog(`[ERROR] Provisioning failed due to lack of available instances in ${region}.`, 'log-error');
-          }
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-rocket"></i> Provision VM';
-        }, 2500);
-      });
-    }
-
-    if (storageForm) {
-      storageForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const type = document.getElementById('storageType').value;
-        const size = document.getElementById('storageSize').value;
-        const enc = document.getElementById('storageEncryption').value;
-
-        const btn = document.getElementById('btnStorage');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Allocating...';
-
-        addPortalLog(`[${new Date().toLocaleTimeString()}] [REQ] Storage Allocation: ${size}GB ${type} (Enc: ${enc})`, 'log-info');
-        
-        setTimeout(() => addPortalLog("> Requesting block storage...", "log-sys"), 400);
-        setTimeout(() => addPortalLog("> Formatting and attaching volume...", "log-sys"), 1000);
-        
-        setTimeout(async () => {
-          const res = await triggerTest(); // simulate backend operation affecting metrics
-          if (res && res.success) {
-             addPortalLog(`[SUCCESS] ${size}GB Storage Volume allocated and ready.`, 'log-success');
-          } else {
-             addPortalLog(`[ERROR] Failed to allocate storage volume.`, 'log-error');
-          }
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-plus"></i> Allocate Storage';
-        }, 2000);
-      });
-    }
-  }
-
-  // --- DASHBOARD FLOW ---
-  if (window.location.pathname.includes('dashboard')) {
-    fetchMetrics();
-    fetchRecentTests();
-    initChart();
-
-    const triggerBtn = document.getElementById('triggerTestBtn');
-    if (triggerBtn) {
-      triggerBtn.addEventListener('click', async () => {
-        triggerBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
-        triggerBtn.disabled = true;
-        
-        await triggerTest();
-        await fetchMetrics();
-        await fetchRecentTests();
-        
-        triggerBtn.innerHTML = '<i class="fa-solid fa-play"></i> Trigger Tests';
-        triggerBtn.disabled = false;
-      });
-    }
-  }
-
-  // --- REPORTS / EXECUTOR FLOW ---
-  if (window.location.pathname.includes('reports')) {
-    fetchMetricsGlobal();
-    
-    const runBtn = document.getElementById('runDiagnosticBtn');
-    if (runBtn) {
-      runBtn.addEventListener('click', async () => {
-        const term = document.getElementById('terminalOutput');
-        
-        const addLog = (msg, typeClass='log-sys') => {
-          const div = document.createElement('div');
-          div.className = `log-line ${typeClass}`;
-          div.textContent = msg;
-          term.appendChild(div);
-          term.scrollTop = term.scrollHeight;
-        };
-
-        addLog(`[${new Date().toLocaleTimeString()}] [EXEC] Starting remote validation suite...`, 'log-info');
-        runBtn.disabled = true;
-        
-        setTimeout(() => addLog("> Fetching VM definitions...", "log-sys"), 500);
-        setTimeout(() => addLog("> Allocating storage nodes...", "log-sys"), 1000);
-        setTimeout(() => addLog("> Applying firewall rules...", "log-sys"), 1500);
-        
-        setTimeout(async () => {
-            const res = await triggerTest();
-            if (res && res.success) {
-              const t = res.data;
-              if (t.status === 'PASSED') {
-                addLog(`[PASS] Environment validation successful. Coverage: ${t.coverage}`, 'log-success');
-              } else {
-                addLog(`[FAIL] Environment validation failed across 3 nodes.`, 'log-error');
-              }
-              addLog(`[SYS] Test completed in ${t.duration}.`, 'log-sys');
-            }
-            fetchMetricsGlobal();
-            runBtn.disabled = false;
-        }, 3000);
-      });
-    }
-  }
-});
-
-let chartInstance = null;
-let passFailChartInstance = null;
-
-function initChart(dataArray = [], labelsArray = [], statusArray = []) {
-  const ctx = document.getElementById('performanceChart');
-  if(!ctx) return;
-  
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
-
-  // Color each point green for PASSED, red for FAILED
-  const pointColors = statusArray.map(s => s === 'PASSED' ? '#10b981' : '#ef4444');
-  const pointBorderColors = statusArray.map(s => s === 'PASSED' ? '#34d399' : '#f87171');
-  
-  chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labelsArray,
-      datasets: [{
-        label: 'Latency (ms)',
-        data: dataArray,
-        fill: true,
-        backgroundColor: 'rgba(14, 165, 233, 0.08)',
-        borderColor: '#0ea5e9',
-        tension: 0.4,
-        pointBackgroundColor: pointColors,
-        pointBorderColor: pointBorderColors,
-        pointRadius: 6,
-        pointHoverRadius: 9,
-        pointBorderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.9)',
-          titleColor: '#f8fafc',
-          bodyColor: '#94a3b8',
-          borderColor: 'rgba(255,255,255,0.1)',
-          borderWidth: 1,
-          padding: 12,
-          callbacks: {
-            afterLabel: function(context) {
-              const status = statusArray[context.dataIndex];
-              return 'Status: ' + (status || 'N/A');
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          display: true,
-          grid: { color: 'rgba(255,255,255,0.05)' },
-          ticks: { color: '#64748b', font: { size: 11 } },
-          title: { display: true, text: 'Latency (ms)', color: '#64748b' }
-        },
-        x: {
-          display: true,
-          grid: { color: 'rgba(255,255,255,0.03)' },
-          ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 45 }
-        }
-      }
-    }
-  });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
 }
 
-function initPassFailChart(passed, failed) {
-  const ctx = document.getElementById('passFailChart');
-  if (!ctx) return;
+// =============================
+// GLOBAL STATE & DATA
+// =============================
+let perfChart = null;
+let coveragePieChart = null;
 
-  if (passFailChartInstance) {
-    passFailChartInstance.destroy();
-  }
-
-  passFailChartInstance = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Passed', 'Failed'],
-      datasets: [{
-        data: [passed, failed],
-        backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
-        borderColor: ['#10b981', '#ef4444'],
-        borderWidth: 2,
-        hoverOffset: 8
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '65%',
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#94a3b8', padding: 15, usePointStyle: true, pointStyleWidth: 10, font: { size: 12 } }
-        }
-      }
+// =============================
+// CORE ACTIONS
+// =============================
+async function triggerTest() {
+  try {
+    const res = await fetch("/api/tests/trigger", { method: "POST" });
+    const result = await res.json();
+    if (result.success) {
+      showToast(`Test ${result.data.runId} initiated successfully.`, "success");
+      return result.data;
     }
-  });
+  } catch (err) {
+    showToast("Failed to trigger test suite.", "error");
+  }
 }
 
-// Global API calls
 async function fetchMetrics() {
   try {
-    const res = await fetch('/api/metrics');
-    const d = await res.json();
-    if(d.success && d.data) {
-      document.getElementById('val-requests').innerText = d.data.totalRequests;
-      document.getElementById('val-vms').innerText = d.data.vmDeployments;
-      document.getElementById('val-storage').innerText = d.data.storageAllocations;
-      document.getElementById('val-passrate').innerText = d.data.testPassRate + '%';
+    const res = await fetch("/api/metrics");
+    const result = await res.json();
+    if (result.success && result.data) {
+      const d = result.data;
+      updateDOM("val-requests", d.totalRequests);
+      updateDOM("val-vms", Math.floor(d.totalRequests * 0.45)); // Simulated breakdown
+      updateDOM("val-storage", Math.floor(d.totalRequests * 0.3)); // Simulated breakdown
+      updateDOM("val-passrate", d.testPassRate + "%");
+      updateCoveragePieChart(d.testPassRate);
+      
+      // Reports page metrics
+      updateDOM("rep-runs", d.totalRequests);
+      updateDOM("rep-cov", "88%"); // Mock static coverage
+      updateDOM("rep-passed", Math.floor(d.totalRequests * (d.testPassRate/100)));
+      updateDOM("rep-failed", Math.floor(d.totalRequests * (1 - d.testPassRate/100)));
     }
-  } catch(e) { console.error(e) }
+  } catch (err) { console.error("Metrics fetch failed", err); }
 }
 
 async function fetchRecentTests() {
   try {
-    const res = await fetch('/api/tests/recent');
-    const d = await res.json();
-    if(d.success && d.data) {
-      if (document.getElementById('performanceChart')) {
-        const tests = d.data.slice().reverse();
-        const latencies = tests.map(t => parseInt(t.duration.replace('ms','')) || 0);
-        const labels = tests.map(t => t.runId);
-        const statuses = tests.map(t => t.status);
-        
-        let sum = 0;
-        latencies.forEach(l => sum += l);
-        let avg = latencies.length ? Math.round(sum / latencies.length) : 0;
-        
-        const avgEl = document.getElementById('val-avglatency');
-        if (avgEl) avgEl.innerText = avg + 'ms';
+    const res = await fetch("/api/tests/recent");
+    const result = await res.json();
+    if (result.success && result.data) {
+      updateRecentTestsTable(result.data);
+      updatePerformanceChart(result.data);
+      
+      if (document.getElementById('val-avglatency')) {
+        const avg = result.data.length > 0 ? 
+          Math.floor(result.data.reduce((sum, t) => sum + parseInt(t.duration), 0) / result.data.length) : 0;
+        updateDOM("val-avglatency", avg + "ms");
+      }
+    }
+  } catch (err) { console.error("Recent tests fetch failed", err); }
+}
 
-        // Count pass/fail
-        let passed = 0, failed = 0;
-        statuses.forEach(s => { if (s === 'PASSED') passed++; else failed++; });
-        
-        const passedEl = document.getElementById('val-passed-count');
-        if (passedEl) passedEl.innerText = passed;
-        const failedEl = document.getElementById('val-failed-count');
-        if (failedEl) failedEl.innerText = failed;
-        
-        if (latencies.length > 0) {
-           initChart(latencies, labels, statuses);
-           initPassFailChart(passed, failed);
+function updateDOM(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function updateRecentTestsTable(tests) {
+  const tbody = document.getElementById("recentTests");
+  if (!tbody) return;
+  tbody.innerHTML = tests.map(t => `
+    <tr>
+      <td>${t.runId}</td>
+      <td>${t.runner}</td>
+      <td>${t.environmentOs}</td>
+      <td><span class="status-badge ${t.status === 'PASSED' ? 'status-passed' : 'status-failed'}">${t.status}</span></td>
+      <td>${t.duration}</td>
+      <td>${t.coverage}</td>
+      <td>${new Date(t.completedAt).toLocaleTimeString()}</td>
+    </tr>
+  `).join('');
+}
+
+function updatePerformanceChart(tests) {
+  const ctx = document.getElementById("performanceChart");
+  if (!ctx) return;
+  const sorted = [...tests].reverse();
+  const labels = sorted.map(t => new Date(t.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  const data = sorted.map(t => parseInt(t.duration));
+  const colors = sorted.map(t => t.status === 'PASSED' ? '#10b981' : '#f87171');
+
+  if (perfChart) perfChart.destroy();
+  perfChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Latency (ms)',
+        data,
+        borderColor: '#0ea5e9',
+        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+        borderWidth: 3,
+        pointBackgroundColor: colors,
+        pointRadius: 6,
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 2000,
+        easing: 'easeOutQuart'
+      },
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+      }
+    }
+  });
+}
+
+function updateCoveragePieChart(passRate) {
+  const ctx = document.getElementById("coveragePieChart");
+  if (!ctx) return;
+  const failRate = Math.max(0, 100 - passRate);
+
+  if (coveragePieChart) coveragePieChart.destroy();
+  coveragePieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Passed', 'Failed'],
+      datasets: [{
+        data: [passRate, failRate],
+        backgroundColor: ['#0ea5e9', '#ef4444'],
+        hoverBackgroundColor: ['#38bdf8', '#f87171'],
+        borderWidth: 0,
+        borderRadius: 5,
+        cutout: '80%'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        animateRotate: true,
+        animateScale: true,
+        duration: 2000,
+        easing: 'easeOutQuart'
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.9)',
+          padding: 12,
+          displayColors: true,
+          callbacks: {
+            label: (context) => ` ${context.label}: ${context.raw}%`
+          }
         }
       }
+    }
+  });
+}
 
-      const tbody = document.getElementById('recentTestsTable');
-      if (tbody) {
-        tbody.innerHTML = '';
-        d.data.forEach(t => {
-          const date = new Date(t.completedAt).toLocaleString();
-          const tr = document.createElement('tr');
-          const isPass = t.status === 'PASSED';
-          tr.innerHTML = `
-            <td>${t.runId}</td>
-            <td>${t.runner}</td>
-            <td>${t.environmentOs}</td>
-            <td><span class="status-badge ${isPass ? 'status-passed' : 'status-failed'}">${t.status}</span></td>
-            <td>${t.duration}</td>
-            <td>${t.coverage}</td>
-            <td>${date}</td>
-          `;
-          tbody.appendChild(tr);
+// =============================
+// INITIALIZATION
+// =============================
+document.addEventListener('DOMContentLoaded', () => {
+  initScrollReveal();
+
+  // --- AUTH TABS & FORMS ---
+  const tabLogin = document.getElementById("tabLogin");
+  const tabRegister = document.getElementById("tabRegister");
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+
+  if (tabLogin && tabRegister) {
+    tabLogin.addEventListener("click", () => {
+      tabLogin.classList.add("active");
+      tabRegister.classList.remove("active");
+      loginForm.classList.add("active");
+      registerForm.classList.remove("active");
+    });
+    tabRegister.addEventListener("click", () => {
+      tabRegister.classList.add("active");
+      tabLogin.classList.remove("active");
+      registerForm.classList.add("active");
+      loginForm.classList.remove("active");
+    });
+  }
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const btn = document.getElementById("loginBtn");
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
         });
-      }
-    }
-  } catch(e) { console.error(e) }
-}
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem("token", data.token);
+          window.location.href = "/dashboard.html";
+        } else {
+          showToast(data.message || "Invalid credentials.", "error");
+        }
+      } catch (err) { showToast("Authentication server unreachable.", "error"); }
+      btn.disabled = false;
+      btn.innerHTML = 'Verify Identity';
+    });
+  }
 
-async function triggerTest() {
-  try {
-    const res = await fetch('/api/tests/trigger', { method: 'POST' });
-    const d = await res.json();
-    return d;
-  } catch(e) { console.error(e); return null; }
-}
+  if (registerForm) {
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("regUsername").value;
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+      const btn = document.getElementById("registerBtn");
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Account...';
 
-async function fetchMetricsGlobal() {
-  try {
-    let passed = 0;
-    let failed = 0;
-    let totalRuns = 0;
-    
-    // get recent tests to count passed/failed (quick hack for demo, normally backend aggregation)
-    const tRes = await fetch('/api/tests/recent');
-    const tData = await tRes.json();
-    if (tData.success) {
-       tData.data.forEach(t => {
-           if(t.status === 'PASSED') passed++;
-           else failed++;
-       });
-    }
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast("Account created! Please login.", "success");
+          tabLogin.click(); // Switch back to login
+        } else {
+          showToast(data.message || "Registration failed.", "error");
+        }
+      } catch (err) { showToast("Network error during registration.", "error"); }
+      btn.disabled = false;
+      btn.innerHTML = 'Create Account';
+    });
+  }
 
-    const mRes = await fetch('/api/metrics');
-    const mData = await mRes.json();
-    if (mData.success && mData.data) {
-       totalRuns = mData.data.totalRequests; // approx
-    }
-    
-    const runEl = document.getElementById('rep-runs');
-    if(runEl) runEl.innerText = totalRuns;
-    
-    const covEl = document.getElementById('rep-cov');
-    if(covEl) covEl.innerText = mData.data ? mData.data.testPassRate + '%' : '0%';
-    
-    const passEl = document.getElementById('rep-passed');
-    if(passEl) passEl.innerText = passed;
-    
-    const failEl = document.getElementById('rep-failed');
-    if(failEl) failEl.innerText = failed;
+  // --- DASHBOARD & REPORTS AUTO-REFRESH ---
+  if (window.location.pathname.includes("dashboard") || window.location.pathname.includes("reports")) {
+    fetchMetrics();
+    fetchRecentTests();
+    setInterval(() => {
+      fetchMetrics();
+      fetchRecentTests();
+    }, 5000);
+  }
 
-  } catch(e) { console.error(e) }
-}
+  // --- TRIGGER BUTTONS ---
+  const dTrigger = document.getElementById("triggerTestBtn");
+  if (dTrigger) {
+    dTrigger.addEventListener("click", async () => {
+      dTrigger.disabled = true;
+      dTrigger.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
+      await triggerTest();
+      await fetchMetrics();
+      await fetchRecentTests();
+      dTrigger.disabled = false;
+      dTrigger.innerHTML = '<i class="fa-solid fa-play"></i> Trigger Tests';
+    });
+  }
+
+  const rTrigger = document.getElementById("runDiagnosticBtn");
+  if (rTrigger) {
+    rTrigger.addEventListener("click", async () => {
+      const term = document.getElementById("terminalOutput");
+      const addLog = (msg, type = 'sys') => {
+        const div = document.createElement("div");
+        div.className = `log-line log-${type}`;
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        term.appendChild(div);
+        term.scrollTop = term.scrollHeight;
+      };
+
+      rTrigger.disabled = true;
+      addLog("Initializing diagnostic suite...", "info");
+      setTimeout(() => addLog("Connecting to cluster nodes...", "info"), 600);
+      setTimeout(async () => {
+        const test = await triggerTest();
+        if (test) {
+          addLog(`Test executed: ${test.runId}`, "success");
+          addLog(`Status: ${test.status}`, test.status === 'PASSED' ? 'success' : 'error');
+          addLog(`Coverage: ${test.coverage}`, "info");
+        }
+        addLog("Diagnostic suite complete.", "sys");
+        rTrigger.disabled = false;
+      }, 1500);
+    });
+  }
+
+  // --- PORTAL FORMS ---
+  const addPortalLog = (msg, type = 'sys') => {
+    const el = document.getElementById("portalLogs");
+    if (!el) return;
+    const div = document.createElement("div");
+    div.className = `log-line log-${type}`;
+    div.textContent = `[PORTAL] ${msg}`;
+    el.appendChild(div);
+    el.scrollTop = el.scrollHeight;
+  };
+
+  const vmForm = document.getElementById("vmForm");
+  if (vmForm) {
+    vmForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const type = document.getElementById("vmType").value;
+      addPortalLog(`Requesting instance: ${type}...`, 'info');
+      setTimeout(() => {
+        addPortalLog(`Provisioning successful. Host assigned.`, 'success');
+        showToast(`VM ${type} deployed.`, "success");
+        triggerTest(); // Link to metrics
+      }, 1000);
+    });
+  }
+
+  const storageForm = document.getElementById("storageForm");
+  if (storageForm) {
+    storageForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const size = document.getElementById("storageSize").value;
+      addPortalLog(`Allocating ${size}GB volume...`, 'info');
+      setTimeout(() => {
+        addPortalLog(`Volume attached and encrypted.`, 'success');
+        showToast(`${size}GB Volume created.`, "success");
+        triggerTest(); // Link to metrics
+      }, 800);
+    });
+  }
+});

@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="CloudSentinel Analytics Dashboard - Real-time cluster telemetry, test coverage metrics, and performance trends.">
+  <meta name="description" content="CloudSentinel Analytics Dashboard - Real-time cluster telemetry and test coverage metrics.">
   <title>Dashboard - CloudSentinel</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Background Effects -->
   <canvas id="particleCanvas"></canvas>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
@@ -32,7 +31,6 @@
     </div>
   </nav>
 
-  <!-- Status Bar -->
   <div class="status-bar">
     <div class="status-indicator">
       <div class="status-dot"></div>
@@ -46,7 +44,7 @@
 
   <div class="dashboard-container">
     <div class="dashboard-header">
-      <i class="fa-solid fa-chart-pie logo-icon" style="font-size: 2rem;"></i>
+      <i class="fa-solid fa-chart-pie logo-icon" style="font-size: 2.5rem;"></i>
       <div>
         <h2>Analytics Dashboard</h2>
         <p>Real-time cluster telemetry and test coverage metrics.</p>
@@ -59,25 +57,25 @@
           <i class="fa-solid fa-network-wired"></i>
         </div>
         <div class="value" id="val-requests">0</div>
-        <div class="label">Total Requests</div>
+        <div class="label">TOTAL REQUESTS</div>
       </div>
       <div class="metric-card">
         <div class="icon-container icon-purple">
           <i class="fa-solid fa-server"></i>
         </div>
         <div class="value" id="val-vms">0</div>
-        <div class="label">VM Deployments</div>
+        <div class="label">VM DEPLOYMENTS</div>
       </div>
       <div class="metric-card">
         <div class="icon-container icon-green">
           <i class="fa-solid fa-database"></i>
         </div>
         <div class="value" id="val-storage">0</div>
-        <div class="label">Storage Allocations</div>
+        <div class="label">STORAGE ALLOCATIONS</div>
       </div>
       <div class="metric-card">
-        <div class="value" id="val-passrate">0%</div>
-        <div class="label" style="margin-top: 1.5rem;">Test Pass Rate</div>
+        <div class="value" id="val-passrate" style="font-size: 2.5rem; font-weight: 700; color: #f8fafc;">0%</div>
+        <div class="label">TEST PASS RATE</div>
       </div>
     </div>
 
@@ -87,34 +85,24 @@
           <div class="panel-title">
             <i class="fa-solid fa-chart-area icon-blue"></i> Validation Performance Trend
           </div>
-          <button id="triggerTestBtn" class="btn-primary" style="padding: 0.4rem 1rem;">
+          <button id="triggerTestBtn" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
             <i class="fa-solid fa-play"></i> Trigger Tests
           </button>
         </div>
-        <div style="height: 300px; display: flex; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.15); border-radius: 8px;">
+        <div style="height: 320px; position: relative;">
           <canvas id="performanceChart"></canvas>
         </div>
       </div>
       
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-title"><i class="fa-solid fa-circle-check icon-green"></i> Pass / Fail Ratio</div>
+          <div class="panel-title"><i class="fa-solid fa-chart-bar icon-purple"></i> Coverage Metrics</div>
         </div>
-        <div style="height: 220px; display: flex; align-items: center; justify-content: center;">
-          <canvas id="passFailChart"></canvas>
-        </div>
-        <div style="display: flex; justify-content: space-around; margin-top: 1rem; padding-bottom: 0.5rem;">
-          <div style="text-align: center;">
-            <p class="label" style="color: var(--text-muted); font-size: 0.8rem;">Avg Latency</p>
-            <div id="val-avglatency" style="font-size: 1.5rem; font-weight: 700; color: var(--primary-blue);">0ms</div>
-          </div>
-          <div style="text-align: center;">
-            <p class="label" style="color: var(--text-muted); font-size: 0.8rem;">Passed</p>
-            <div id="val-passed-count" style="font-size: 1.5rem; font-weight: 700; color: #10b981;">0</div>
-          </div>
-          <div style="text-align: center;">
-            <p class="label" style="color: var(--text-muted); font-size: 0.8rem;">Failed</p>
-            <div id="val-failed-count" style="font-size: 1.5rem; font-weight: 700; color: #ef4444;">0</div>
+        <div style="height: 280px; position: relative; display: flex; align-items: center; justify-content: center;">
+          <canvas id="coveragePieChart"></canvas>
+          <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
+            <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: -0.2rem; text-transform: uppercase; letter-spacing: 1px;">Avg Latency</p>
+            <div id="val-avglatency" style="font-size: 1.8rem; font-weight: 800; color: var(--primary-blue); text-shadow: 0 0 15px rgba(14, 165, 233, 0.3);">0ms</div>
           </div>
         </div>
       </div>
@@ -130,24 +118,23 @@
         <table>
           <thead>
             <tr>
-              <th>Run ID</th>
-              <th>Runner</th>
-              <th>Environment OS</th>
-              <th>Status</th>
-              <th>Duration</th>
-              <th>Coverage</th>
-              <th>Completed At</th>
+              <th>RUN ID</th>
+              <th>RUNNER</th>
+              <th>ENVIRONMENT OS</th>
+              <th>STATUS</th>
+              <th>DURATION</th>
+              <th>COVERAGE</th>
+              <th>COMPLETED AT</th>
             </tr>
           </thead>
-          <tbody id="recentTestsTable">
-            <!-- Table rows populated dynamically -->
+          <tbody id="recentTests">
+            <!-- Populated by app.js -->
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-content">
       <div class="footer-brand">
@@ -155,7 +142,7 @@
           <i class="fa-solid fa-cloud logo-icon"></i>
           <span>CloudSentinel</span>
         </a>
-        <p>Enterprise-grade cloud testing &amp; observability platform.</p>
+        <p>Enterprise-grade cloud testing & observability platform. Built for teams that demand reliability at scale.</p>
       </div>
       <div class="footer-col">
         <h4>Platform</h4>
