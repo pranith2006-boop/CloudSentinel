@@ -32,7 +32,7 @@ function initScrollReveal() {
 // =============================
 // GLOBAL STATE & DATA
 // =============================
-const API_BASE = "https://cloudsentinel-e7m1.onrender.com"; // Updated to use relative paths for unified deployment
+const API_BASE = ""; // Switch to "" for Unified Vercel Routing
 let perfChart = null;
 let coveragePieChart = null;
 
