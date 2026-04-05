@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CloudSentinel Analytics Dashboard - Real-time cluster telemetry, test coverage metrics, and performance trends.">
+  <title>Dashboard - CloudSentinel</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Background Effects -->
+  <canvas id="particleCanvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <nav class="navbar">
+    <a href="/" class="logo-section">
+      <i class="fa-solid fa-cloud logo-icon"></i>
+      <span>CloudSentinel</span>
+    </a>
+    <div class="nav-links">
+      <a href="/portal.html">Portal</a>
+      <a href="/dashboard.html" class="active">Dashboard</a>
+      <a href="/reports.html">Reports</a>
+      <a href="/" class="btn-secondary logout-btn">
+        <i class="fa-solid fa-power-off"></i> Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <span>All Systems Operational</span>
+    </div>
+    <div class="separator"></div>
+    <span><i class="fa-solid fa-server"></i>&nbsp; Cluster: us-east-1</span>
+    <div class="separator"></div>
+    <span><i class="fa-solid fa-clock"></i>&nbsp; Uptime: 99.98%</span>
+  </div>
+
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <i class="fa-solid fa-chart-pie logo-icon" style="font-size: 2rem;"></i>
+      <div>
+        <h2>Analytics Dashboard</h2>
+        <p>Real-time cluster telemetry and test coverage metrics.</p>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="icon-container icon-blue">
+          <i class="fa-solid fa-network-wired"></i>
+        </div>
+        <div class="value" id="val-requests">0</div>
+        <div class="label">Total Requests</div>
+      </div>
+      <div class="metric-card">
+        <div class="icon-container icon-purple">
+          <i class="fa-solid fa-server"></i>
+        </div>
+        <div class="value" id="val-vms">0</div>
+        <div class="label">VM Deployments</div>
+      </div>
+      <div class="metric-card">
+        <div class="icon-container icon-green">
+          <i class="fa-solid fa-database"></i>
+        </div>
+        <div class="value" id="val-storage">0</div>
+        <div class="label">Storage Allocations</div>
+      </div>
+      <div class="metric-card">
+        <div class="value" id="val-passrate">0%</div>
+        <div class="label" style="margin-top: 1.5rem;">Test Pass Rate</div>
+      </div>
+    </div>
+
+    <div class="dashboard-main-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-chart-area icon-blue"></i> Validation Performance Trend
+          </div>
+          <button id="triggerTestBtn" class="btn-primary" style="padding: 0.4rem 1rem;">
+            <i class="fa-solid fa-play"></i> Trigger Tests
+          </button>
+        </div>
+        <div style="height: 300px; display: flex; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.15); border-radius: 8px;">
+          <canvas id="performanceChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fa-solid fa-circle-check icon-green"></i> Pass / Fail Ratio</div>
+        </div>
+        <div style="height: 220px; display: flex; align-items: center; justify-content: center;">
+          <canvas id="passFailChart"></canvas>
+        </div>
+        <div style="display: flex; justify-content: space-around; margin-top: 1rem; padding-bottom: 0.5rem;">
+          <div style="text-align: center;">
+            <p class="label" style="color: var(--text-muted); font-size: 0.8rem;">Avg Latency</p>
+            <div id="val-avglatency" style="font-size: 1.5rem; font-weight: 700; color: var(--primary-blue);">0ms</div>
+          </div>
+          <div style="text-align: center;">
+            <p class="label" style="color: var(--text-muted); font-size: 0.8rem;">Passed</p>
+            <div id="val-passed-count" style="font-size: 1.5rem; font-weight: 700; color: #10b981;">0</div>
+          </div>
+          <div style="text-align: center;">
+            <p class="label" style="color: var(--text-muted); font-size: 0.8rem;">Failed</p>
+            <div id="val-failed-count" style="font-size: 1.5rem; font-weight: 700; color: #ef4444;">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <i class="fa-solid fa-list-check icon-blue"></i> Recent Test Executions
+        </div>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Run ID</th>
+              <th>Runner</th>
+              <th>Environment OS</th>
+              <th>Status</th>
+              <th>Duration</th>
+              <th>Coverage</th>
+              <th>Completed At</th>
+            </tr>
+          </thead>
+          <tbody id="recentTestsTable">
+            <!-- Table rows populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="/" class="logo-section">
+          <i class="fa-solid fa-cloud logo-icon"></i>
+          <span>CloudSentinel</span>
+        </a>
+        <p>Enterprise-grade cloud testing &amp; observability platform.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="/portal.html">Service Portal</a></li>
+          <li><a href="/dashboard.html">Dashboard</a></li>
+          <li><a href="/reports.html">Reports</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="/docs.html">Documentation</a></li>
+          <li><a href="/docs.html">API Reference</a></li>
+          <li><a href="/dashboard.html">Status Page</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/about.html">Security</a></li>
+          <li><a href="/about.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 CloudSentinel. All rights reserved.</span>
+      <div class="footer-socials">
+        <a href="#"><i class="fa-brands fa-github"></i></a>
+        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/particles.js"></script>
+</body>
+</html>

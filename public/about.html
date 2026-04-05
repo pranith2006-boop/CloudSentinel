@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="About CloudSentinel - Enterprise cloud testing platform built for reliability at scale.">
+  <title>About - CloudSentinel</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <nav class="navbar">
+    <a href="/" class="logo-section">
+      <i class="fa-solid fa-cloud logo-icon"></i>
+      <span>CloudSentinel</span>
+    </a>
+    <div class="nav-links">
+      <a href="/portal.html">Portal</a>
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/reports.html">Reports</a>
+      <a href="/" class="btn-secondary logout-btn">
+        <i class="fa-solid fa-power-off"></i> Logout
+      </a>
+    </div>
+  </nav>
+
+  <div class="status-bar">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <span>All Systems Operational</span>
+    </div>
+    <div class="separator"></div>
+    <span><i class="fa-solid fa-shield-halved"></i>&nbsp; SOC 2 Compliant</span>
+  </div>
+
+  <div class="dashboard-container">
+    <!-- About Section -->
+    <div class="dashboard-header" style="margin-bottom: 1rem;">
+      <i class="fa-solid fa-building logo-icon" style="font-size: 2rem;"></i>
+      <div>
+        <h2>About CloudSentinel</h2>
+        <p>Enterprise cloud testing &amp; observability, built for teams that demand reliability.</p>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom: 2rem;">
+      <div class="panel-header">
+        <div class="panel-title"><i class="fa-solid fa-bullseye icon-blue"></i> Our Mission</div>
+      </div>
+      <p style="color: var(--text-muted); line-height: 1.9; font-size: 1rem;">
+        CloudSentinel was built to give engineering teams full confidence in their cloud infrastructure. 
+        We simulate real-world provisioning workflows — VM deployments, storage allocations, and authentication flows — 
+        and run automated validation suites against them. Our platform captures every test result, latency metric, 
+        and coverage data point in real-time, so you can catch failures before your users do.
+      </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="metrics-grid" style="margin-bottom: 2.5rem;">
+      <div class="metric-card">
+        <div class="value" style="color: var(--primary-blue);">99.98%</div>
+        <div class="label">Platform Uptime</div>
+      </div>
+      <div class="metric-card">
+        <div class="value" style="color: var(--accent-green);">5M+</div>
+        <div class="label">Tests Executed</div>
+      </div>
+      <div class="metric-card">
+        <div class="value" style="color: var(--accent-purple);">120+</div>
+        <div class="label">Enterprise Clients</div>
+      </div>
+      <div class="metric-card">
+        <div class="value" style="color: var(--primary-blue);">3</div>
+        <div class="label">Global Regions</div>
+      </div>
+    </div>
+
+    <!-- Security -->
+    <div class="panel" style="margin-bottom: 2rem;">
+      <div class="panel-header">
+        <div class="panel-title"><i class="fa-solid fa-shield-halved icon-green"></i> Security & Compliance</div>
+      </div>
+      <div class="features-grid" style="padding: 0; max-width: 100%;">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-lock"></i></div>
+          <h3>TLS 1.3 Encryption</h3>
+          <p>All data in transit is encrypted with TLS 1.3. At-rest encryption uses AES-256.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-key"></i></div>
+          <h3>KMS Integration</h3>
+          <p>Supports customer-managed encryption keys through AWS KMS and Azure Key Vault.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-certificate"></i></div>
+          <h3>SOC 2 Type II</h3>
+          <p>Independently audited and certified for security, availability, and confidentiality.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><i class="fa-solid fa-envelope icon-purple"></i> Contact Us</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+        <div style="background: rgba(0,0,0,0.15); padding: 1.5rem; border-radius: 12px; text-align: center;">
+          <i class="fa-solid fa-envelope" style="font-size: 2rem; color: var(--primary-blue); margin-bottom: 1rem;"></i>
+          <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Email</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">support@cloudsentinel.io</p>
+        </div>
+        <div style="background: rgba(0,0,0,0.15); padding: 1.5rem; border-radius: 12px; text-align: center;">
+          <i class="fa-solid fa-headset" style="font-size: 2rem; color: var(--accent-green); margin-bottom: 1rem;"></i>
+          <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Live Chat</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Available 24/7 for Enterprise</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="/" class="logo-section"><i class="fa-solid fa-cloud logo-icon"></i><span>CloudSentinel</span></a>
+        <p>Enterprise-grade cloud testing &amp; observability platform.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="/portal.html">Service Portal</a></li>
+          <li><a href="/dashboard.html">Dashboard</a></li>
+          <li><a href="/reports.html">Reports</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="/docs.html">Documentation</a></li>
+          <li><a href="/docs.html">API Reference</a></li>
+          <li><a href="/dashboard.html">Status Page</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/about.html">Security</a></li>
+          <li><a href="/about.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 CloudSentinel. All rights reserved.</span>
+      <div class="footer-socials">
+        <a href="#"><i class="fa-brands fa-github"></i></a>
+        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/particles.js"></script>
+</body>
+</html>

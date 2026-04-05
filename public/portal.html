@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CloudSentinel Service Portal - Simulate cloud VM and storage provisioning workflows.">
+  <title>Service Portal - CloudSentinel</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Background Effects -->
+  <canvas id="particleCanvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <nav class="navbar">
+    <a href="/" class="logo-section">
+      <i class="fa-solid fa-cloud logo-icon"></i>
+      <span>CloudSentinel</span>
+    </a>
+    <div class="nav-links">
+      <a href="/portal.html" class="active">Portal</a>
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/reports.html">Reports</a>
+      <a href="/" class="btn-secondary logout-btn">
+        <i class="fa-solid fa-power-off"></i> Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <span>All Systems Operational</span>
+    </div>
+    <div class="separator"></div>
+    <span><i class="fa-solid fa-server"></i>&nbsp; Cluster: us-east-1</span>
+    <div class="separator"></div>
+    <span><i class="fa-solid fa-clock"></i>&nbsp; Uptime: 99.98%</span>
+  </div>
+
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <i class="fa-solid fa-layer-group logo-icon" style="font-size: 2rem;"></i>
+      <div>
+        <h2>Service Provisioning Portal</h2>
+        <p>Simulate cloud workflows by configuring realistic VM and Storage parameters.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-main-grid">
+      <!-- VM Provisioning Form -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-server icon-blue"></i> Deploy Virtual Machine
+          </div>
+        </div>
+        <form id="vmProvisionForm" class="portal-form">
+          <div class="form-group">
+            <label for="vmInstanceType">Instance Type</label>
+            <select id="vmInstanceType" required>
+              <option value="t3.micro">t3.micro (2 vCPU, 1 GiB)</option>
+              <option value="t3.medium">t3.medium (2 vCPU, 4 GiB)</option>
+              <option value="c5.large">c5.large (2 vCPU, 4 GiB Compute)</option>
+              <option value="m5.xlarge">m5.xlarge (4 vCPU, 16 GiB)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="vmOs">Operating System Image</label>
+            <select id="vmOs" required>
+              <option value="ubuntu-22.04">Ubuntu 22.04 LTS</option>
+              <option value="amzn2">Amazon Linux 2</option>
+              <option value="win2022">Windows Server 2022</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="vmRegion">Region</label>
+            <select id="vmRegion" required>
+              <option value="us-east-1">US East (N. Virginia)</option>
+              <option value="eu-west-1">EU (Ireland)</option>
+              <option value="ap-south-1">Asia Pacific (Mumbai)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top: 1rem;">
+            <i class="fa-solid fa-rocket"></i> Provision VM
+          </button>
+        </form>
+      </div>
+
+      <!-- Storage Provisioning Form -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-database icon-green"></i> Allocate Storage Volume
+          </div>
+        </div>
+        <form id="storageProvisionForm" class="portal-form">
+          <div class="form-group">
+            <label for="storageType">Volume Type</label>
+            <select id="storageType" required>
+              <option value="gp3">General Purpose SSD (gp3)</option>
+              <option value="io2">Provisioned IOPS SSD (io2)</option>
+              <option value="st1">Throughput Optimized HDD (st1)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="storageSize">Capacity (GB)</label>
+            <input type="number" id="storageSize" value="100" min="1" max="16000" required>
+          </div>
+          <div class="form-group">
+            <label for="storageEncryption">Encryption</label>
+            <select id="storageEncryption" required>
+              <option value="enabled">Managed Key Encryption</option>
+              <option value="customer">Customer Managed Key (KMS)</option>
+              <option value="unencrypted">Unencrypted (Not Recommended)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top: 1rem;" id="btnStorage">
+            <i class="fa-solid fa-plus"></i> Allocate Storage
+          </button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Status Log for User Feedback -->
+    <div class="panel" style="margin-top: 2rem;">
+      <div class="panel-header">
+        <div class="panel-title">
+          <i class="fa-solid fa-clipboard-list icon-purple"></i> Provisioning Log
+        </div>
+      </div>
+      <div class="executor-terminal" style="height: 15rem; min-height: 15rem;">
+        <div class="terminal-body" id="portalLog" style="height: 100%;">
+          <div class="log-line log-sys">[SYS] Portal ready to accept provisioning configurations.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="/" class="logo-section">
+          <i class="fa-solid fa-cloud logo-icon"></i>
+          <span>CloudSentinel</span>
+        </a>
+        <p>Enterprise-grade cloud testing &amp; observability platform.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="/portal.html">Service Portal</a></li>
+          <li><a href="/dashboard.html">Dashboard</a></li>
+          <li><a href="/reports.html">Reports</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="/docs.html">Documentation</a></li>
+          <li><a href="/docs.html">API Reference</a></li>
+          <li><a href="/dashboard.html">Status Page</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/about.html">Security</a></li>
+          <li><a href="/about.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 CloudSentinel. All rights reserved.</span>
+      <div class="footer-socials">
+        <a href="#"><i class="fa-brands fa-github"></i></a>
+        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/particles.js"></script>
+</body>
+</html>

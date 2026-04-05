@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CloudSentinel Documentation - API Reference, integration guides, and platform documentation.">
+  <title>Documentation - CloudSentinel</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <nav class="navbar">
+    <a href="/" class="logo-section">
+      <i class="fa-solid fa-cloud logo-icon"></i>
+      <span>CloudSentinel</span>
+    </a>
+    <div class="nav-links">
+      <a href="/portal.html">Portal</a>
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/reports.html">Reports</a>
+      <a href="/" class="btn-secondary logout-btn">
+        <i class="fa-solid fa-power-off"></i> Logout
+      </a>
+    </div>
+  </nav>
+
+  <div class="status-bar">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <span>All Systems Operational</span>
+    </div>
+    <div class="separator"></div>
+    <span><i class="fa-solid fa-book"></i>&nbsp; Documentation v2.0</span>
+  </div>
+
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <i class="fa-solid fa-book-open logo-icon" style="font-size: 2rem;"></i>
+      <div>
+        <h2>Documentation & API Reference</h2>
+        <p>Everything you need to integrate with and operate CloudSentinel.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-main-grid">
+      <!-- Getting Started -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fa-solid fa-rocket icon-blue"></i> Getting Started</div>
+        </div>
+        <div style="color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+          <p style="margin-bottom: 1rem;">CloudSentinel is an enterprise-grade cloud testing and observability platform. Follow these steps to begin:</p>
+          <div style="background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: 10px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.85rem; margin-bottom: 1rem;">
+            <div style="color: var(--text-muted); margin-bottom: 0.5rem;"># Clone the repository</div>
+            <div style="color: var(--accent-green);">$ git clone https://github.com/cloudsentinel/platform.git</div>
+            <div style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 0.5rem;"># Install dependencies</div>
+            <div style="color: var(--accent-green);">$ npm install</div>
+            <div style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 0.5rem;"># Start the server</div>
+            <div style="color: var(--accent-green);">$ node server.js</div>
+          </div>
+          <p>The server will start on <strong style="color: var(--primary-blue);">port 4000</strong> by default. Configure your MongoDB URI in the <code style="background: rgba(14,165,233,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--primary-blue);">.env</code> file.</p>
+        </div>
+      </div>
+
+      <!-- API Reference -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fa-solid fa-code icon-purple"></i> API Endpoints</div>
+        </div>
+        <div style="font-size: 0.9rem;">
+          <div style="background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; border-left: 3px solid var(--accent-green);">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+              <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">GET</span>
+              <code style="color: var(--text-main);">/api/metrics</code>
+            </div>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Returns global dashboard metrics</span>
+          </div>
+          <div style="background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; border-left: 3px solid var(--primary-blue);">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+              <span style="background: rgba(14,165,233,0.2); color: var(--primary-blue); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">POST</span>
+              <code style="color: var(--text-main);">/api/tests/trigger</code>
+            </div>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Trigger a new test execution</span>
+          </div>
+          <div style="background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; border-left: 3px solid var(--accent-green);">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+              <span style="background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">GET</span>
+              <code style="color: var(--text-main);">/api/tests/recent</code>
+            </div>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Fetch the 10 most recent test executions</span>
+          </div>
+          <div style="background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--primary-blue);">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+              <span style="background: rgba(14,165,233,0.2); color: var(--primary-blue); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">POST</span>
+              <code style="color: var(--text-main);">/api/auth/login</code>
+            </div>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Authenticate user credentials</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture -->
+    <div class="panel" style="margin-top: 2rem;">
+      <div class="panel-header">
+        <div class="panel-title"><i class="fa-solid fa-diagram-project icon-green"></i> Architecture Overview</div>
+      </div>
+      <div class="features-grid" style="padding: 0; max-width: 100%;">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-laptop-code"></i></div>
+          <h3>Frontend</h3>
+          <p>Vanilla HTML, CSS & JS with Chart.js for real-time data visualization and interactive particle effects.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-gears"></i></div>
+          <h3>Backend</h3>
+          <p>Node.js + Express REST API with Mongoose ODM for MongoDB data persistence and test orchestration.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-database"></i></div>
+          <h3>Database</h3>
+          <p>MongoDB Atlas for storing test executions, metrics snapshots, and historical performance data.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="/" class="logo-section"><i class="fa-solid fa-cloud logo-icon"></i><span>CloudSentinel</span></a>
+        <p>Enterprise-grade cloud testing &amp; observability platform.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="/portal.html">Service Portal</a></li>
+          <li><a href="/dashboard.html">Dashboard</a></li>
+          <li><a href="/reports.html">Reports</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="/docs.html">Documentation</a></li>
+          <li><a href="/docs.html">API Reference</a></li>
+          <li><a href="/dashboard.html">Status Page</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/about.html">Security</a></li>
+          <li><a href="/about.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 CloudSentinel. All rights reserved.</span>
+      <div class="footer-socials">
+        <a href="#"><i class="fa-brands fa-github"></i></a>
+        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/particles.js"></script>
+</body>
+</html>
