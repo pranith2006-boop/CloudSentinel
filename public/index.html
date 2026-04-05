@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
   <!-- Background Effects -->
   <canvas id="particleCanvas"></canvas>
   <div class="orb orb-1"></div>
@@ -16,6 +17,7 @@
   <div class="orb orb-3"></div>
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- Navbar -->
   <nav class="navbar">
     <a href="/" class="logo-section">
       <i class="fa-solid fa-cloud logo-icon"></i>
@@ -45,57 +47,158 @@
     <span><i class="fa-solid fa-shield-halved"></i>&nbsp; TLS 1.3 Secured</span>
   </div>
 
+  <!-- Hero Section -->
   <main class="hero">
     <div class="hero-badge">
       <i class="fa-solid fa-bolt"></i> NEXT-GEN CLOUD AUTOMATION
     </div>
-    <h1>Protect cloud workflows with <br><span class="highlight-text">automated observability</span></h1>
-    <p>Simulate login, VM provisioning, and storage workflows. <br>Capture real-time test results, coverage analytics, and latency <br>trends in one ultra-premium portal.</p>
-    
+
+    <h1>
+      Protect cloud workflows with <br>
+      <span class="highlight-text">automated observability</span>
+    </h1>
+
+    <p>
+      Simulate login, VM provisioning, and storage workflows. <br>
+      Capture real-time test results, coverage analytics, and latency <br>
+      trends in one ultra-premium portal.
+    </p>
+
     <div class="hero-buttons">
       <a href="/portal.html" class="btn-primary">
         <i class="fa-solid fa-rocket"></i> Launch Portal
       </a>
+
       <a href="/dashboard.html" class="btn-secondary">
         <i class="fa-solid fa-chart-line"></i> View Dashboard
       </a>
     </div>
   </main>
 
+  <!-- Features -->
   <section class="features-grid">
+
     <div class="feature-card reveal">
       <div class="feature-icon">
         <i class="fa-solid fa-server"></i>
       </div>
       <h3>Simulate Requests</h3>
-      <p>Launch VM and storage provisioning flows from the portal with realistic parameters.</p>
+      <p>
+        Launch VM and storage provisioning flows from the portal
+        with realistic parameters.
+      </p>
     </div>
+
     <div class="feature-card reveal">
       <div class="feature-icon">
         <i class="fa-solid fa-microchip"></i>
       </div>
       <h3>Automated Validation</h3>
-      <p>Automatically run integration tests every time a request is submitted to the cluster.</p>
+      <p>
+        Automatically run integration tests every time a request
+        is submitted to the cluster.
+      </p>
     </div>
+
     <div class="feature-card reveal">
       <div class="feature-icon">
         <i class="fa-solid fa-shield-halved"></i>
       </div>
       <h3>Track Reliability</h3>
-      <p>Monitor pass/fail ratios, latency trends and coverage over time via Dashboards.</p>
+      <p>
+        Monitor pass/fail ratios, latency trends and coverage
+        over time via Dashboards.
+      </p>
     </div>
+
+  </section>
+
+  <!-- Stats Section -->
+  <section class="metrics-grid"
+    style="max-width:1200px;margin:0 auto 5rem auto;padding:0 4rem;">
+
+    <div class="metric-card">
+      <div class="value" style="color: var(--primary-blue);">
+        99.98%
+      </div>
+      <div class="label">Platform Uptime</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="value" style="color: var(--accent-green);">
+        5M+
+      </div>
+      <div class="label">Tests Executed</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="value" style="color: var(--accent-purple);">
+        120+
+      </div>
+      <div class="label">Enterprise Clients</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="value" style="color: var(--primary-blue);">
+        3
+      </div>
+      <div class="label">Global Regions</div>
+    </div>
+
+  </section>
+
+  <!-- CTA Section -->
+  <section style="text-align:center; margin-bottom:6rem;">
+
+    <h2 style="font-size:2.2rem; margin-bottom:1rem;">
+      Built for 
+      <span class="highlight-text">
+        Enterprise Reliability
+      </span>
+    </h2>
+
+    <p style="color:var(--text-muted); 
+              max-width:650px; 
+              margin:0 auto 2rem auto;">
+
+      CloudSentinel helps teams simulate real-world cloud workflows,
+      monitor reliability, and automate infrastructure validation
+      at scale.
+    </p>
+
+    <div class="hero-buttons">
+
+      <a href="/portal.html" class="btn-primary">
+        <i class="fa-solid fa-rocket"></i>
+        Try Platform
+      </a>
+
+      <a href="/docs.html" class="btn-secondary">
+        <i class="fa-solid fa-book"></i>
+        View Docs
+      </a>
+
+    </div>
+
   </section>
 
   <!-- Footer -->
   <footer class="site-footer">
+
     <div class="footer-content">
+
       <div class="footer-brand">
         <a href="/" class="logo-section">
           <i class="fa-solid fa-cloud logo-icon"></i>
           <span>CloudSentinel</span>
         </a>
-        <p>Enterprise-grade cloud testing &amp; observability platform. Built for teams that demand reliability at scale.</p>
+
+        <p>
+          Enterprise-grade cloud testing & observability platform.
+          Built for teams that demand reliability at scale.
+        </p>
       </div>
+
       <div class="footer-col">
         <h4>Platform</h4>
         <ul>
@@ -104,6 +207,7 @@
           <li><a href="/reports.html">Reports</a></li>
         </ul>
       </div>
+
       <div class="footer-col">
         <h4>Resources</h4>
         <ul>
@@ -112,6 +216,7 @@
           <li><a href="/dashboard.html">Status Page</a></li>
         </ul>
       </div>
+
       <div class="footer-col">
         <h4>Company</h4>
         <ul>
@@ -120,18 +225,25 @@
           <li><a href="/about.html">Contact</a></li>
         </ul>
       </div>
+
     </div>
+
     <div class="footer-bottom">
-      <span>&copy; 2026 CloudSentinel. All rights reserved.</span>
+      <span>
+        © 2026 CloudSentinel. All rights reserved.
+      </span>
+
       <div class="footer-socials">
         <a href="#"><i class="fa-brands fa-github"></i></a>
         <a href="#"><i class="fa-brands fa-twitter"></i></a>
         <a href="#"><i class="fa-brands fa-linkedin"></i></a>
       </div>
     </div>
+
   </footer>
 
   <script src="/js/app.js"></script>
   <script src="/js/particles.js"></script>
+
 </body>
 </html>
